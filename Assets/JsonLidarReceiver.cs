@@ -118,6 +118,12 @@ public class JsonLidarReceiver : MonoBehaviour
                         // 새로운 객체면 일단 사람 더미로 소환
                         GameObject newObj = Instantiate(humanPrefab, targetPos, Quaternion.identity);
                         spawnedObjects.Add(obj.id, newObj);
+
+                        LidarHuman script = newObj.GetComponent<LidarHuman>();
+                        if (script != null)
+                        {
+                             script.SetupId(obj.id); // 소환 직후 ID 번호표 달아주기!
+                        }
                         
                     }
                 }
