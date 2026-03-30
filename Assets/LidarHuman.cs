@@ -70,6 +70,12 @@ public class LidarHuman : MonoBehaviour
             currentAnimSpeed = Mathf.Lerp(currentAnimSpeed, targetSpeed, Time.deltaTime * 5f);
             anim.SetFloat("Speed", currentAnimSpeed);
         }
+
+        if (humanIdText != null && Camera.main != null)
+        {
+            // 캔버스가 항상 메인 카메라와 똑같은 방향을 보게 만듭니다!
+            humanIdText.transform.parent.rotation = Camera.main.transform.rotation;
+        }
     }
 
     public void DoThrowTrash()
@@ -84,7 +90,7 @@ public class LidarHuman : MonoBehaviour
         // ⭐️ 여기도 humanIdText로 깔끔하게 수정됨!
         if (humanIdText != null)
         {
-            humanIdText.text = $"🚨 무단 투기!\nID: {myId}";
+            humanIdText.text = $"WARNING!!\nID: {myId}";
             humanIdText.color = Color.red;
         }
 
