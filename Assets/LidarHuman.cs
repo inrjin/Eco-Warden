@@ -1,18 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro; // TMP 사용 필수
+using TMPro; 
 
 public class LidarHuman : MonoBehaviour
 {
     [Header("Color & UI")]
     public List<Material> dummyMaterials;
-
-    // ⭐️ 새 이름: humanIdText
     public TMP_Text humanIdText; 
 
     public Vector3 targetPosition;
     private Animator anim;
+    private TrailRenderer trail; // ⭐️ 추가: 궤적 그리는 녀석
+    
     private float currentAnimSpeed = 0f;
     private bool isThrowing = false; 
     private string myId = "Unknown"; 
@@ -21,7 +21,6 @@ public class LidarHuman : MonoBehaviour
     {
         myId = id.ToString();
         
-        // ⭐️ 옛날 statusText 대신 전부 humanIdText로 통일됨!
         if (humanIdText != null)
         {
             humanIdText.text = $"ID: {myId}";
@@ -33,6 +32,14 @@ public class LidarHuman : MonoBehaviour
     {
         targetPosition = transform.position;
         anim = GetComponent<Animator>();
+        
+        // ⭐️ 시작할 때 Trail Renderer를 찾아서 연결해 둠
+        trail = GetComponent<TrailRenderer>();
+        if (trail != null)
+        {
+            trail.emitting = false; // 처음엔 무조건 선 그리기 끄기!
+            trail.time = 10f; // 10초 동안 선이 바닥에 남아있게 설정
+        }
 
         if (dummyMaterials != null && dummyMaterials.Count > 0)
         {
@@ -71,9 +78,9 @@ public class LidarHuman : MonoBehaviour
             anim.SetFloat("Speed", currentAnimSpeed);
         }
 
+        // 텍스트가 항상 카메라(관제탑)를 바라보게 만들기! (해바라기 모드)
         if (humanIdText != null && Camera.main != null)
         {
-            // 캔버스가 항상 메인 카메라와 똑같은 방향을 보게 만듭니다!
             humanIdText.transform.parent.rotation = Camera.main.transform.rotation;
         }
     }
@@ -87,11 +94,18 @@ public class LidarHuman : MonoBehaviour
     {
         isThrowing = true; 
 
-        // ⭐️ 여기도 humanIdText로 깔끔하게 수정됨!
         if (humanIdText != null)
         {
-            humanIdText.text = $"WARNING!!\nID: {myId}";
+            humanIdText.text = $"🚨 WARNING!\nID: {myId}";
             humanIdText.color = Color.red;
+        }
+
+        // ⭐️ 핵심: 범행 순간부터 도망가는 경로 추적 시작!!
+        if (trail != null)
+        {
+            trail.emitting = true; 
+            trail.startColor = Color.red; // 빨간색 궤적으로 변경
+            trail.endColor = new Color(1f, 0f, 0f, 0f); // 꼬리표는 투명하게 사라지도록
         }
 
         if (anim != null)
