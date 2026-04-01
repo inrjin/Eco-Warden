@@ -42,6 +42,7 @@ public class JsonLidarReceiver : MonoBehaviour
     [Header("시각화 에셋")]
     public GameObject humanPrefab;
     public GameObject trashPrefab;
+    public Transform sensorOrigin;
 
     private UdpClient udpClient;
     private Thread receiveThread;
@@ -101,7 +102,9 @@ public class JsonLidarReceiver : MonoBehaviour
                 foreach (var obj in payload.objects)
                 {
                     // [좌표 변환] mm를 m로 나누기(/1000f), 라이다 Y축을 유니티 Z축으로 매핑!
-                    Vector3 targetPos = new Vector3(obj.x / 1000f, 0.5f, obj.y / 1000f);
+                    // Vector3 targetPos = new Vector3(obj.x / 1000f, 0.5f, obj.y / 1000f);
+                    Vector3 localTargetPos = new Vector3(obj.x / 1000f, 0.3f, obj.y / 1000f);
+                    Vector3 targetPos = sensorOrigin.TransformPoint(localTargetPos);
 
                     if (spawnedObjects.ContainsKey(obj.id))
                     {
@@ -135,7 +138,9 @@ public class JsonLidarReceiver : MonoBehaviour
                 break;
 
             case "ALERT":
-                Vector3 trashPos = new Vector3(payload.object_x / 1000f, 0.5f, payload.object_y / 1000f);
+                // Vector3 trashPos = new Vector3(payload.object_x / 1000f, 0.5f, payload.object_y / 1000f);
+                Vector3 localTrashPos = new Vector3(payload.object_x / 1000f, 0.5f, payload.object_y / 1000f);
+                Vector3 trashPos = sensorOrigin.TransformPoint(localTrashPos);
                 GameObject trash = Instantiate(trashPrefab, trashPos, Quaternion.identity);
                 spawnedObjects[payload.object_id] = trash; 
 
